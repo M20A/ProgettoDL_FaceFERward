@@ -1,0 +1,12 @@
+jupyter
+ipykernel
+numpy
+pandas
+matplotlib
+scikit-learn
+pillow
+kagglehub
+torch
+torchvision
+tensorflow
+keras
