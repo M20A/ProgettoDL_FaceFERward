@@ -36,6 +36,61 @@ data/original/test
 
 La cartella `data/processed/`, l'ambiente virtuale `.venv/` e i modelli salvati in `models/` sono esclusi dal push tramite `.gitignore`.
 
+## Storico modifiche
+
+### Commit precedente di riferimento
+
+Il commit:
+
+```text
+1070df460f5ff158d3f9ff5b681dec9aff460b3a - Aggiunta commenti vari
+```
+
+viene mantenuto come riferimento storico per confrontare la prima versione del progetto con quella attuale.
+
+In quella versione il flusso era piu' legato a Colab/Google Drive e il training non usava ancora direttamente una cartella `data/processed` generata dal preprocessing.
+
+### Commit del 27/06/2026
+
+In data 27/06/2026 e' stato aggiornato il flusso dei notebook per rendere effettivo l'utilizzo del preprocessing nel training.
+
+Modifiche principali:
+
+- `notebooks/Preprocessing.ipynb` crea uno split preprocessato fisico in:
+
+```text
+data/processed/train
+data/processed/validation
+```
+
+- `data/processed/train` contiene le immagini originali di training piu' una quota di immagini augmentate.
+- `data/processed/validation` contiene immagini di validazione non augmentate.
+- `notebooks/Training.ipynb` non usa piu' `data/original/train` direttamente per il training.
+- `notebooks/Training.ipynb` usa ora:
+
+```text
+data/processed/train
+data/processed/validation
+data/original/test
+```
+
+- `data/original/test` resta separato e viene usato solo per la valutazione finale.
+- Le metriche gia' riportate nel README appartengono alla run precedente e vanno aggiornate dopo un nuovo training con i dati preprocessati.
+
+### Aggiornamento monitoraggio real-time
+
+I notebook sono stati aggiornati per mostrare l'avanzamento delle fasi principali durante l'esecuzione, utile soprattutto su Google Colab.
+
+In particolare:
+
+- ogni fase stampa messaggi con orario di inizio/fine e durata;
+- il preprocessing mostra barre di avanzamento durante split, copia immagini e augmentation;
+- il training stampa numero di immagini, batch per epoca, distribuzione classi e `class_weight`;
+- durante il training viene mostrata la durata di ogni epoca e le metriche principali;
+- evaluation carica il modello salvato e mostra progressi durante valutazione, predizioni, report e confusion matrix.
+
+Per le barre di avanzamento viene usata la libreria `tqdm`, inclusa in `requirements.txt`.
+
 ## Differenze principali dal commit precedente
 
 ### Preprocessing
@@ -53,21 +108,21 @@ Ora il preprocessing e' piu' adatto a girare da VS Code in locale:
 - evita dipendenze da Colab
 - non richiede uno split fisico su Drive
 - mantiene separato il dataset originale
+- crea `data/processed/train` e `data/processed/validation` a partire dal training set originale
+- aggiunge immagini augmentate solo in `data/processed/train`
+- lascia intatto `data/original/test`, che resta riservato alla valutazione finale
 
 ### Training
 
-Il training e' stato ristrutturato per usare direttamente:
+Il training e' stato ristrutturato per usare:
 
 ```text
-data/original/train
+data/processed/train
+data/processed/validation
 data/original/test
 ```
 
-La validation viene creata da `data/original/train` con:
-
-```python
-validation_split=0.2
-```
+La validation non viene piu' creata al volo con `validation_split`: viene letta direttamente da `data/processed/validation`, generata nel notebook di preprocessing.
 
 Il test set rimane separato e viene usato solo alla fine per la valutazione.
 
@@ -105,6 +160,8 @@ Il numero di parametri e' piu' basso soprattutto perche' `GlobalAveragePooling2D
 ## Risultati ottenuti
 
 Ultima run del notebook `Training.ipynb`:
+
+Nota: questi risultati fanno riferimento alla run precedente. Dopo la modifica che usa `data/processed/train` e `data/processed/validation`, il training va rieseguito per aggiornare le metriche.
 
 ```text
 Train images:      22,968
@@ -158,7 +215,8 @@ Questo e' coerente con FER-2013: il dataset e' rumoroso, alcune emozioni sono vi
 
 La struttura attuale riduce il rischio di data leakage:
 
-- training e validation derivano solo da `data/original/train`
+- training e validation derivano da `data/processed/train` e `data/processed/validation`, generati solo a partire da `data/original/train`
+- le immagini augmentate vengono aggiunte solo al training preprocessato
 - il test set usa solo `data/original/test`
 - il test viene usato solo alla fine con `model.evaluate`
 
@@ -177,6 +235,8 @@ Poi eseguire i notebook in questo ordine:
 1. `notebooks/Preprocessing.ipynb`
 2. `notebooks/Training.ipynb`
 3. `notebooks/Evaluation.ipynb`, se si vuole separare la fase di valutazione
+
+Il preprocessing va eseguito prima del training perche' crea `data/processed/train` e `data/processed/validation`, cioe' le cartelle che il notebook di training usa come sorgenti.
 
 Su Windows TensorFlow non usa la GPU nativa con le versioni moderne. Per training piu' veloce conviene usare Google Colab con GPU oppure WSL2.
 
