@@ -1,0 +1,3 @@
+Modello: CNN_v1
+Data: 20260627-180349
+Migliore val_loss: 1.1576 all'epoca 48
