@@ -1,0 +1,10 @@
+Modello: mobilenetv2_transfer
+Data: 20260628_124858
+Base model: MobileNetV2 pretrained on ImageNet
+Migliore val_loss: 1.2881 all'epoca 35
+Test accuracy: 0.5153
+Test AUC: 0.8580
+Macro F1: 0.4615
+Weighted F1: 0.5026
+Training totale: 49.1 minuti
+Inference time: 1.5256 ms/image

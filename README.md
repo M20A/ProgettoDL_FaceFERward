@@ -135,6 +135,26 @@ In particolare:
 
 Per le barre di avanzamento viene usata la libreria `tqdm`, inclusa in `requirements.txt`.
 
+### Aggiornamento del 28/06/2026 12:44 - notebook MobileNetV2
+
+E' stato aggiunto il notebook:
+
+```text
+notebooks/Training_MobileNetV2.ipynb
+```
+
+Questo notebook avvia la seconda linea sperimentale del progetto: transfer learning con MobileNetV2 preaddestrata su ImageNet.
+
+La struttura resta coerente con quella gia' usata dalla CNN:
+
+- il preprocessing rimane comune e viene eseguito una sola volta con `notebooks/Preprocessing.ipynb`;
+- il notebook MobileNetV2 legge `data/processed/train`, `data/processed/validation` e `data/original/test`;
+- ogni run MobileNetV2 viene salvata in una nuova cartella `experiments/<timestamp>_mobilenetv2_transfer/`;
+- figure, tabelle e predizioni vengono esportate in `results/figures/`, `results/tables/` e `results/predictions/`;
+- la tabella `results/tables/models_comparison.csv` viene aggiornata per facilitare il confronto tra CNN custom e modello preaddestrato.
+
+Il notebook e' stato creato per documentare il confronto sperimentale tra CNN custom e transfer learning.
+
 ## Differenze principali dal commit precedente
 
 ### Preprocessing
@@ -325,6 +345,61 @@ Test AUC:      0.9009
 
 Questa run resta nello storico per confronto. Se si vuole usarla nella presentazione finale, conviene collegarla a una cartella esperimento completa con modello, log, history e risultati.
 
+#### Run `experiments/20260628_124858_mobilenetv2_transfer/`
+
+Il 28/06/2026 alle 14:04 (+02:00) e' stato documentato il primo esperimento di transfer learning con MobileNetV2 preaddestrata su ImageNet.
+
+Configurazione principale:
+
+```text
+Base model:          MobileNetV2
+Pretrained weights:  ImageNet
+Input size:          96x96x3
+Feature extraction:  15 epoche
+Fine tuning:         20 epoche
+Fine-tuned layers:   ultimi 30 layer, con BatchNormalization congelata
+```
+
+Risultati sul test set:
+
+```text
+Test accuracy: 0.5153
+Test AUC:      0.8580
+Macro F1:      0.4615
+Weighted F1:   0.5026
+Training:      49.1 minuti
+Inference:     1.53 ms/image
+```
+
+Confronto con la run CNN di riferimento `experiments/20260628_120337_cnn_v1/`:
+
+```text
+CNN custom accuracy:      0.5705
+MobileNetV2 accuracy:    0.5153
+
+CNN custom macro F1:     0.5246
+MobileNetV2 macro F1:    0.4615
+
+CNN custom weighted F1:  0.5601
+MobileNetV2 weighted F1: 0.5026
+```
+
+La run MobileNetV2 e' quindi inferiore alla CNN custom in questa configurazione, anche se e' piu' veloce in inferenza. Il risultato resta importante per il progetto perche' mostra che il transfer learning da ImageNet non porta automaticamente un miglioramento su FER-2013: il dominio di partenza e' RGB/natural images, mentre FER-2013 contiene facce grayscale 48x48.
+
+Dal classification report emergono buone prestazioni su `happy` e `surprise`, un miglioramento relativo su `sad` rispetto alla CNN, ma difficolta' marcate su `fear`, che ha recall basso. Questo sara' utile per l'analisi per classe e per la discussione degli errori.
+
+I file salvati sono:
+
+```text
+experiments/20260628_124858_mobilenetv2_transfer/
+results/figures/20260628_124858_mobilenetv2_transfer_training_curves.png
+results/figures/20260628_124858_mobilenetv2_transfer_confusion_matrix.png
+results/tables/20260628_124858_mobilenetv2_transfer_classification_report.csv
+results/tables/20260628_124858_mobilenetv2_transfer_confusion_matrix.csv
+results/predictions/20260628_124858_mobilenetv2_transfer_test_predictions.csv
+results/tables/models_comparison.csv
+```
+
 ## Analisi dei risultati
 
 Il miglioramento sembra reale dal punto di vista pratico: il modello generalizza meglio sul test set rispetto alla CNN iniziale.
@@ -365,10 +440,13 @@ pip install -r requirements.txt
 Poi eseguire i notebook in questo ordine:
 
 1. `notebooks/Preprocessing.ipynb`
-2. `notebooks/Training.ipynb`
-3. `notebooks/Evaluation.ipynb`, se si vuole separare la fase di valutazione
+2. `notebooks/Training.ipynb`, per la CNN custom
+3. `notebooks/Training_MobileNetV2.ipynb`, per il transfer learning con ImageNet
+4. `notebooks/Evaluation.ipynb`, se si vuole separare la fase di valutazione
 
-Il preprocessing va eseguito prima del training perche' crea `data/processed/train` e `data/processed/validation`, cioe' le cartelle che il notebook di training usa come sorgenti.
+Il preprocessing va eseguito prima dei training perche' crea `data/processed/train` e `data/processed/validation`, cioe' le cartelle che i notebook di training usano come sorgenti.
+
+`Training.ipynb` e `Training_MobileNetV2.ipynb` sono due esperimenti alternativi: non serve creare due preprocessing separati. Dopo averli eseguiti entrambi, i risultati salvati in `experiments/` e `results/` permettono di confrontare CNN custom e MobileNetV2.
 
 Su Windows TensorFlow non usa la GPU nativa con le versioni moderne. Per training piu' veloce conviene usare Google Colab con GPU oppure WSL2.
 
@@ -376,8 +454,8 @@ Su Windows TensorFlow non usa la GPU nativa con le versioni moderne. Per trainin
 
 Prossimi step consigliati:
 
-- usare transfer learning con un modello preaddestrato
-- provare architetture piu' robuste come MobileNet/EfficientNet adattate a FER-2013
+- usare `models_comparison.csv` come tabella base per relazione e presentazione
+- provare una seconda configurazione MobileNetV2 o EfficientNet solo se serve un ulteriore confronto
 - usare callback e metriche per salvare e confrontare piu' esperimenti
 - aggiungere controllo hash per escludere duplicati tra train e test
 - arricchire `results/` con grafici comparativi tra modelli e analisi degli errori
