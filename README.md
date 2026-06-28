@@ -14,6 +14,13 @@ Il progetto usa immagini grayscale 48x48 divise in 7 classi:
 
 ## Stato attuale
 
+Questo README mantiene due livelli di informazione:
+
+- lo stato attuale del progetto, cioe' come va eseguito e dove salva ora i file;
+- lo storico delle modifiche e dei risultati, cosi' resta chiaro come il progetto e' cambiato nel tempo.
+
+Quando viene fatta una nuova modifica importante, aggiungere una nuova voce nello storico invece di cancellare le informazioni precedenti.
+
 Riferimento Git usato per il confronto:
 
 ```text
@@ -76,9 +83,9 @@ data/original/test
 ```
 
 - `data/original/test` resta separato e viene usato solo per la valutazione finale.
-- Le metriche gia' riportate nel README appartengono alla run precedente e vanno aggiornate dopo un nuovo training con i dati preprocessati.
+- Le metriche precedenti vengono mantenute nello storico risultati, cosi' e' possibile confrontare l'evoluzione del progetto.
 
-### Aggiornamento struttura esperimenti
+### Aggiornamento del 28/06/2026 - struttura esperimenti
 
 Il progetto usa ora la struttura suggerita dalle linee guida:
 
@@ -114,7 +121,7 @@ results/tables/
 results/predictions/
 ```
 
-### Aggiornamento monitoraggio real-time
+### Aggiornamento del 27/06/2026 - monitoraggio real-time
 
 I notebook sono stati aggiornati per mostrare l'avanzamento delle fasi principali durante l'esecuzione, utile soprattutto su Google Colab.
 
@@ -197,9 +204,12 @@ Il numero di parametri e' piu' basso soprattutto perche' `GlobalAveragePooling2D
 
 ## Risultati ottenuti
 
-Ultima run del notebook `Training.ipynb`:
+### Risultato corrente di riferimento
 
-Nota: questi risultati fanno riferimento alla run `experiments/20260627_180349_cnn_v1/`.
+Run attualmente usata come riferimento nel repository:
+
+Nota: questi risultati fanno riferimento alla run `experiments/20260628_120337_cnn_v1/`.
+La documentazione di questa run e' stata aggiornata il 28/06/2026 alle 12:31 (+02:00).
 
 ```text
 Train images:      32,155
@@ -207,17 +217,36 @@ Validation images:  5,741
 Test images:        7,178
 ```
 
-Training completato in 50 epoche su 50.
+Tempi rilevati durante l'esecuzione completa locale:
+
+```text
+Preprocessing completo:              54.0s
+Verifica split preprocessati:         1.2s
+Training modello:                  1468.5s (~24.5 minuti)
+Valutazione finale nel training:       7.7s
+Evaluation separata modello salvato:   3.0s
+Predizioni e report in evaluation:     3.6s
+```
+
+Training completato in 50 epoche su 50. La migliore `val_loss` e' stata:
+
+```text
+Best val_loss: 1.1268 all'epoca 44
+Best val_accuracy: 0.5748 all'epoca 46
+Best val_auc: 0.8929 all'epoca 46
+```
 
 Risultato finale sul test set:
 
 ```text
-Test loss:     1.1599
-Test accuracy: 0.5592
-Test AUC:      0.8854
+Test loss:     1.1314
+Test accuracy: 0.5705
+Test AUC:      0.8918
+Macro F1:      0.52
+Weighted F1:   0.56
 ```
 
-Rispetto al risultato precedente riportato di circa:
+Rispetto al risultato iniziale riportato di circa:
 
 ```text
 Test accuracy: 0.44
@@ -226,10 +255,75 @@ Test accuracy: 0.44
 il nuovo risultato e' un miglioramento netto:
 
 ```text
-0.44 -> 0.5592
+0.44 -> 0.5705
 ```
 
-cioe' circa +12 punti percentuali di accuracy.
+cioe' circa +13 punti percentuali di accuracy.
+
+La nuova struttura di salvataggio ha funzionato correttamente. La run ha prodotto:
+
+```text
+experiments/20260628_120337_cnn_v1/config.json
+experiments/20260628_120337_cnn_v1/model.keras
+experiments/20260628_120337_cnn_v1/training_history.csv
+experiments/20260628_120337_cnn_v1/training_log.txt
+experiments/20260628_120337_cnn_v1/test_results.txt
+results/tables/preprocessing_split_counts.csv
+results/tables/20260628_120337_cnn_v1_classification_report.csv
+results/tables/20260628_120337_cnn_v1_confusion_matrix.csv
+results/predictions/20260628_120337_cnn_v1_test_predictions.csv
+results/figures/20260628_120337_cnn_v1_training_curves.png
+results/figures/20260628_120337_cnn_v1_confusion_matrix.png
+```
+
+### Storico risultati
+
+Le metriche seguenti vengono mantenute come storico. Non vanno eliminate quando si aggiunge una nuova run: servono a capire l'evoluzione del progetto.
+
+#### Baseline iniziale
+
+La prima versione del progetto riportava una test accuracy di circa:
+
+```text
+Test accuracy: 0.44
+```
+
+Questa baseline e' utile come punto di partenza per mostrare il miglioramento ottenuto con le versioni successive.
+
+#### Run `experiments/20260627_180349_cnn_v1/`
+
+Questa run e' stata mantenuta nello storico dopo il passaggio alla struttura `experiments/`.
+
+```text
+Train images:      32,155
+Validation images:  5,741
+Test images:        7,178
+Training: 50 epoche su 50
+
+Best val_loss: 1.1576 all'epoca 48
+Test loss:     1.1599
+Test accuracy: 0.5592
+Test AUC:      0.8854
+Macro F1:      0.51
+Weighted F1:   0.55
+```
+
+#### Run precedente documentata nel README
+
+Prima del riordino della struttura in `experiments/`, il README riportava una run con:
+
+```text
+Train images:      22,968
+Validation images:  5,741
+Test images:        7,178
+Training: 42 epoche su 50, fermato dai callback
+
+Test loss:     1.0841
+Test accuracy: 0.5846
+Test AUC:      0.9009
+```
+
+Questa run resta nello storico per confronto. Se si vuole usarla nella presentazione finale, conviene collegarla a una cartella esperimento completa con modello, log, history e risultati.
 
 ## Analisi dei risultati
 
@@ -237,15 +331,15 @@ Il miglioramento sembra reale dal punto di vista pratico: il modello generalizza
 
 Le classi migliori sono:
 
-- `happy`, con F1-score circa 0.83
-- `surprise`, con F1-score circa 0.70
-- `neutral`, con F1-score circa 0.55
+- `happy`, con F1-score circa 0.81
+- `surprise`, con F1-score circa 0.71
+- `neutral`, con F1-score circa 0.56
 
 Le classi piu' problematiche sono:
 
 - `fear`, con recall basso
-- `disgust`, molto sbilanciata e con pochi esempi
 - `sad`, spesso confusa con `neutral`
+- `disgust`, molto sbilanciata e con pochi esempi, anche se in questa run ha recall alto
 
 Questo e' coerente con FER-2013: il dataset e' rumoroso, alcune emozioni sono visivamente simili e le classi non sono perfettamente bilanciate.
 
@@ -296,6 +390,6 @@ La modifica e' un miglioramento sia strutturale sia prestazionale.
 
 Strutturale, perche' il progetto e' piu' portabile, meno dipendente da Colab e piu' ordinato nei percorsi.
 
-Prestazionale, perche' l'accuracy sul test set passa da circa 0.44 a 0.5592 nella run attuale.
+Prestazionale, perche' l'accuracy sul test set passa da circa 0.44 a 0.5705 nella run attuale.
 
 Il modello non e' ancora allo stato dell'arte, ma ora ha una base piu' solida su cui continuare.

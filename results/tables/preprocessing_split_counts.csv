@@ -1,0 +1,8 @@
+,train,validation,test
+angry,4507,799,958
+disgust,477,87,111
+fear,4588,819,1024
+happy,8062,1443,1774
+neutral,5560,993,1233
+sad,5407,966,1247
+surprise,3554,634,831
