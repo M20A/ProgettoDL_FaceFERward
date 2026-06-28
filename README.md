@@ -34,7 +34,8 @@ data/original/train
 data/original/test
 ```
 
-La cartella `data/processed/`, l'ambiente virtuale `.venv/` e i modelli salvati in `models/` sono esclusi dal push tramite `.gitignore`.
+La cartella `data/processed/` e l'ambiente virtuale `.venv/` sono esclusi dal push tramite `.gitignore`.
+Le run di training vengono salvate in `experiments/`, mentre figure, tabelle e predizioni riutilizzabili vengono esportate in `results/`.
 
 ## Storico modifiche
 
@@ -76,6 +77,42 @@ data/original/test
 
 - `data/original/test` resta separato e viene usato solo per la valutazione finale.
 - Le metriche gia' riportate nel README appartengono alla run precedente e vanno aggiornate dopo un nuovo training con i dati preprocessati.
+
+### Aggiornamento struttura esperimenti
+
+Il progetto usa ora la struttura suggerita dalle linee guida:
+
+```text
+assets/
+data/
+experiments/
+notebooks/
+results/
+```
+
+Ogni nuovo training crea una sottocartella dedicata in `experiments/`, ad esempio:
+
+```text
+experiments/20260628_153012_cnn_v1/
+```
+
+La cartella dell'esperimento contiene almeno:
+
+```text
+config.json
+model.keras
+training_history.csv
+training_log.txt
+test_results.txt
+```
+
+Gli output pensati per documentazione, confronto e presentazione vengono salvati in:
+
+```text
+results/figures/
+results/tables/
+results/predictions/
+```
 
 ### Aggiornamento monitoraggio real-time
 
@@ -145,7 +182,8 @@ Il modello attuale usa:
 - learning rate piu' basso: `3e-4`
 - massimo 50 epoche con `EarlyStopping`
 - `ReduceLROnPlateau`
-- salvataggio del miglior modello in `models/best_cnn.keras`
+- salvataggio del miglior modello in una cartella dedicata sotto `experiments/`
+- esportazione di curve, confusion matrix, report e predizioni in `results/`
 
 Parametri del modello attuale:
 
@@ -161,22 +199,22 @@ Il numero di parametri e' piu' basso soprattutto perche' `GlobalAveragePooling2D
 
 Ultima run del notebook `Training.ipynb`:
 
-Nota: questi risultati fanno riferimento alla run precedente. Dopo la modifica che usa `data/processed/train` e `data/processed/validation`, il training va rieseguito per aggiornare le metriche.
+Nota: questi risultati fanno riferimento alla run `experiments/20260627_180349_cnn_v1/`.
 
 ```text
-Train images:      22,968
+Train images:      32,155
 Validation images:  5,741
 Test images:        7,178
 ```
 
-Training completato in 42 epoche su 50, fermato dai callback.
+Training completato in 50 epoche su 50.
 
 Risultato finale sul test set:
 
 ```text
-Test loss:     1.0841
-Test accuracy: 0.5846
-Test AUC:      0.9009
+Test loss:     1.1599
+Test accuracy: 0.5592
+Test AUC:      0.8854
 ```
 
 Rispetto al risultato precedente riportato di circa:
@@ -188,10 +226,10 @@ Test accuracy: 0.44
 il nuovo risultato e' un miglioramento netto:
 
 ```text
-0.44 -> 0.5846
+0.44 -> 0.5592
 ```
 
-cioe' circa +14 punti percentuali di accuracy.
+cioe' circa +12 punti percentuali di accuracy.
 
 ## Analisi dei risultati
 
@@ -200,8 +238,8 @@ Il miglioramento sembra reale dal punto di vista pratico: il modello generalizza
 Le classi migliori sono:
 
 - `happy`, con F1-score circa 0.83
-- `surprise`, con F1-score circa 0.72
-- `neutral`, con F1-score circa 0.57
+- `surprise`, con F1-score circa 0.70
+- `neutral`, con F1-score circa 0.55
 
 Le classi piu' problematiche sono:
 
@@ -248,7 +286,7 @@ Prossimi step consigliati:
 - provare architetture piu' robuste come MobileNet/EfficientNet adattate a FER-2013
 - usare callback e metriche per salvare e confrontare piu' esperimenti
 - aggiungere controllo hash per escludere duplicati tra train e test
-- salvare grafici e confusion matrix in una cartella `reports/`
+- arricchire `results/` con grafici comparativi tra modelli e analisi degli errori
 - provare tuning di augmentation, learning rate e batch size
 - usare Colab/GPU per testare piu' configurazioni in meno tempo
 
@@ -258,6 +296,6 @@ La modifica e' un miglioramento sia strutturale sia prestazionale.
 
 Strutturale, perche' il progetto e' piu' portabile, meno dipendente da Colab e piu' ordinato nei percorsi.
 
-Prestazionale, perche' l'accuracy sul test set passa da circa 0.44 a 0.5846 nella run attuale.
+Prestazionale, perche' l'accuracy sul test set passa da circa 0.44 a 0.5592 nella run attuale.
 
 Il modello non e' ancora allo stato dell'arte, ma ora ha una base piu' solida su cui continuare.
