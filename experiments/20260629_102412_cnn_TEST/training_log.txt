@@ -1,0 +1,3 @@
+Modello: cnn_TEST
+Data: 20260629_102412
+Migliore val_loss: 1.0878 all'epoca 49
