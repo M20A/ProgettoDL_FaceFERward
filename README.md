@@ -155,6 +155,41 @@ La struttura resta coerente con quella gia' usata dalla CNN:
 
 Il notebook e' stato creato per documentare il confronto sperimentale tra CNN custom e transfer learning.
 
+### Aggiornamento del 29/06/2026 - notebook CNN complessa
+
+E' stato aggiunto il notebook:
+
+```text
+notebooks/Training_CNN_Complex.ipynb
+```
+
+Questo notebook avvia una terza linea sperimentale: una CNN custom piu' profonda e piu' pesante della CNN baseline.
+
+La nuova architettura usa:
+
+- 5 stage convoluzionali in stile VGG;
+- 2 convoluzioni per stage;
+- filtri crescenti `32 -> 64 -> 128 -> 256 -> 512`;
+- `BatchNormalization`;
+- `SpatialDropout2D` nei blocchi convoluzionali;
+- `GlobalAveragePooling2D`;
+- classificatore finale con Dense `512 -> 256 -> 7`;
+- `AdamW`, weight decay, label smoothing, class weight e augmentation online.
+
+Il modello ha circa 5.1 milioni di parametri, quindi e' molto piu' complesso della CNN baseline da circa 305 mila parametri documentata nel README.
+
+Il training puo' durare diverse ore su CPU. Ogni run viene salvata in:
+
+```text
+experiments/<timestamp>_cnn_complex_v1/
+```
+
+Al termine vengono esportati anche report, confusion matrix, predizioni e aggiornamento di:
+
+```text
+results/tables/models_comparison.csv
+```
+
 ## Differenze principali dal commit precedente
 
 ### Preprocessing
@@ -441,12 +476,13 @@ Poi eseguire i notebook in questo ordine:
 
 1. `notebooks/Preprocessing.ipynb`
 2. `notebooks/Training.ipynb`, per la CNN custom
-3. `notebooks/Training_MobileNetV2.ipynb`, per il transfer learning con ImageNet
-4. `notebooks/Evaluation.ipynb`, se si vuole separare la fase di valutazione
+3. `notebooks/Training_CNN_Complex.ipynb`, per la CNN custom complessa
+4. `notebooks/Training_MobileNetV2.ipynb`, per il transfer learning con ImageNet
+5. `notebooks/Evaluation.ipynb`, se si vuole separare la fase di valutazione
 
 Il preprocessing va eseguito prima dei training perche' crea `data/processed/train` e `data/processed/validation`, cioe' le cartelle che i notebook di training usano come sorgenti.
 
-`Training.ipynb` e `Training_MobileNetV2.ipynb` sono due esperimenti alternativi: non serve creare due preprocessing separati. Dopo averli eseguiti entrambi, i risultati salvati in `experiments/` e `results/` permettono di confrontare CNN custom e MobileNetV2.
+`Training.ipynb`, `Training_CNN_Complex.ipynb` e `Training_MobileNetV2.ipynb` sono esperimenti alternativi: non serve creare preprocessing separati. Dopo averli eseguiti, i risultati salvati in `experiments/` e `results/` permettono di confrontare CNN custom semplice, CNN custom complessa e MobileNetV2.
 
 Su Windows TensorFlow non usa la GPU nativa con le versioni moderne. Per training piu' veloce conviene usare Google Colab con GPU oppure WSL2.
 
