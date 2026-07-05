@@ -11,3 +11,5 @@ torchvision
 tensorflow
 keras
 tqdm
+seaborn
+opencv-python
