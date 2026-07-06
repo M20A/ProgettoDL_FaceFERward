@@ -1,0 +1,10 @@
+Modello: ResNet50_transfer
+Data: 20260705_201240
+Base model: ResNet50 pretrained on ImageNet
+Migliore val_loss: 1.0974 all'epoca 21
+Test accuracy: 0.6076
+Test AUC: 0.9017
+Macro F1: 0.5975
+Weighted F1: 0.6070
+Training totale: 476.5 minuti
+Inference time: 24.2909 ms/image
