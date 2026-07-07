@@ -1,5 +1,0 @@
-Modello: cnn_complex_v1
-Data: 20260705_194905
-Epoche completate: 9/50
-Migliore val_loss: 1.0277 all'epoca 1
-Training time seconds: 195.5
