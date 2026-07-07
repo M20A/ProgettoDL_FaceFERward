@@ -156,7 +156,7 @@ Le figure seguenti sono una selezione ridotta degli output prodotti. Tutte le al
 
 ### ResNet50 transfer - confusion matrix
 
-![Confusion matrix di ResNet50 transfer](results/2026-06-30/20260630_135725_ResNet50_transfer/figures/20260630_135725_ResNet50_transfer_confusion_matrix.png)
+![Confusion matrix di ResNet50 transfer](results/2026-07-06/20260706_063423_ResNet50_transfer/figures/20260706_063423_ResNet50_transfer_confusion_matrix.png)
 
 ### MobileNetV2 transfer - confusion matrix
 
