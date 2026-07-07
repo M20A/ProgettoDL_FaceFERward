@@ -1,0 +1,3 @@
+Modello: cnn_complex_v1
+Data: 20260707_163656
+Migliore val_loss: 1.0323 all'epoca 29
