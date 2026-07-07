@@ -152,7 +152,7 @@ Le figure seguenti sono una selezione ridotta degli output prodotti. Tutte le al
 
 ### CNN complex - confusion matrix
 
-![Confusion matrix della CNN complex](results/2026-06-29/20260629_185100_cnn_complex_v1/figures/20260707_163656_cnn_complex_v1_confusion_matrix.png)
+![Confusion matrix della CNN complex]([results/2026-06-29/20260629_185100_cnn_complex_v1/figures/20260707_163656_cnn_complex_v1_confusion_matrix.png](https://github.com/M20A/ProgettoDL_FaceFERward/blob/main/results/2026-07-07/20260707_163656_cnn_complex_v1/figures/20260707_163656_cnn_complex_v1_confusion_matrix.png))
 
 ### ResNet50 transfer - confusion matrix
 
