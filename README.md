@@ -168,9 +168,9 @@ La CNN complex migliora in modo evidente rispetto alla baseline, ma non risolve 
 
 Nel modello migliore:
 
-- `happy` raggiunge F1-score circa 0.88;
-- `surprise` raggiunge F1-score circa 0.78;
-- `fear` rimane piu' debole, con F1-score circa 0.47;
+- `happy` raggiunge F1-score circa 0.83;
+- `surprise` raggiunge F1-score circa 0.76;
+- `fear` rimane piu' debole, con F1-score circa 0.35;
 - `sad` e `neutral` presentano confusione reciproca;
 - `disgust` ha pochi esempi nel test set, quindi va interpretata con cautela anche quando il valore F1 e' buono.
 
@@ -250,6 +250,6 @@ Le predizioni sono utili per analisi successive, ma non sono obbligatorie per og
 
 ## Conclusioni
 
-Il progetto mostra che una CNN custom piu' profonda puo' superare sia la baseline sia i modelli preaddestrati testati, almeno nella configurazione sperimentale adottata. Il miglior risultato e' stato ottenuto dalla CNN complex, con accuracy pari a 0.6704 e AUC pari a 0.9312 sul test set.
+Il progetto mostra che una CNN custom piu' profonda puo' superare sia la baseline sia i modelli preaddestrati testati, almeno nella configurazione sperimentale adottata. Il miglior risultato e' stato ottenuto dalla CNN complex, con accuracy pari a 0.6144 e AUC pari a 0.9078 sul test set.
 
 Il confronto conferma inoltre che il transfer learning da ImageNet non garantisce automaticamente prestazioni migliori su FER-2013: il dominio di partenza e' diverso, mentre il dataset finale e' composto da volti grayscale a bassa risoluzione. Le analisi per classe e Grad-CAM evidenziano infine che il riconoscimento delle emozioni resta un task delicato, con errori piu' frequenti sulle classi visivamente ambigue.
