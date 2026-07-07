@@ -14,6 +14,15 @@ Il dataset contiene immagini di volti in scala di grigi, organizzate in sette cl
 
 Dataset utilizzato: FER-2013, disponibile su Kaggle all'indirizzo <https://www.kaggle.com/datasets/msambare/fer2013>.
 
+Esperimenti eseguiti presenti in:  
+<https://unicadrsi-my.sharepoint.com/:f:/g/personal/m_antelmi_studenti_unica_it/IgCq0or6HYDSTqS5xZFTDUdXAQFbA0Ff1WpJgmkj9lRPeto?e=zTSJFO>
+
+Scaricare le cartelle e inserirle in:
+```text
+ProgettoDL_FaceFERward/
+|-- experiments/ <--
+```
+
 ## Obiettivi del progetto
 
 Il progetto parte da tre domande di ricerca:
