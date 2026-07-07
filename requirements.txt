@@ -13,3 +13,4 @@ keras
 tqdm
 seaborn
 opencv-python
+tf-keras-vis
