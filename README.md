@@ -129,11 +129,11 @@ Le run principali sono sintetizzate in `results/models_comparison.csv`.
 
 ## Risultati principali
 
-La migliore run ottenuta e' `20260629_163656_cnn_complex_v1`, con accuracy sul test set pari a **0.6144** e macro F1 pari a **0.59**.
+La migliore run ottenuta e' `20260707_163656_cnn_complex_v1`, con accuracy sul test set pari a **0.6144** e macro F1 pari a **0.59**.
 
 | Run | Modello | Accuracy | Macro F1 | Weighted F1 | AUC | Inference |
 |---|---|---:|---:|---:|---:|---:|
-| `20260629_163656_cnn_complex_v1` | CNN complex | 0.6144 | 0.59 | 0.61 | 0.9078 | 2.28 ms/img |
+| `20260707_163656_cnn_complex_v1` | CNN complex | 0.6144 | 0.59 | 0.61 | 0.9078 | 2.28 ms/img |
 | `20260630_135725_ResNet50_transfer` | ResNet50 transfer | 0.6076 | 0.5975 | 0.6070 | 0.9017 | 25.23 ms/img |
 | `20260705_190109_mobilenetv2_transfer` | MobileNetV2 transfer | 0.5823 | 0.5733 | 0.5807 | 0.8907 | 1.46 ms/img |
 | `20260628_120337_cnn_v1` | CNN baseline | 0.5705 | 0.5246 | 0.5601 | 0.8918 | n.d. |
