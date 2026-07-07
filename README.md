@@ -129,7 +129,7 @@ Le run principali sono sintetizzate in `results/models_comparison.csv`.
 
 ## Risultati principali
 
-La migliore run ottenuta e' `20260629_185100_cnn_complex_v1`, con accuracy sul test set pari a **0.6704** e macro F1 pari a **0.6567**.
+La migliore run ottenuta e' `20260629_163656_cnn_complex_v1`, con accuracy sul test set pari a **0.6144** e macro F1 pari a **0.59**.
 
 | Run | Modello | Accuracy | Macro F1 | Weighted F1 | AUC | Inference |
 |---|---|---:|---:|---:|---:|---:|
