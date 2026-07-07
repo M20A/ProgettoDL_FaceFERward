@@ -133,8 +133,8 @@ La migliore run ottenuta e' `20260629_185100_cnn_complex_v1`, con accuracy sul t
 
 | Run | Modello | Accuracy | Macro F1 | Weighted F1 | AUC | Inference |
 |---|---|---:|---:|---:|---:|---:|
-| `20260629_185100_cnn_complex_v1` | CNN complex | 0.6704 | 0.6567 | 0.6681 | 0.9312 | 2.28 ms/img |
-| `20260630_135725_ResNet50_transfer` | ResNet50 transfer | 0.6193 | 0.5918 | 0.6138 | 0.9094 | 25.23 ms/img |
+| `20260629_185100_cnn_complex_v1` | CNN complex | 0.6144 | 0.59 | 0.61 | 0.9078 | 2.28 ms/img |
+| `20260630_135725_ResNet50_transfer` | ResNet50 transfer | 0.6076 | 0.5975 | 0.6070 | 0.9017 | 25.23 ms/img |
 | `20260705_190109_mobilenetv2_transfer` | MobileNetV2 transfer | 0.5823 | 0.5733 | 0.5807 | 0.8907 | 1.46 ms/img |
 | `20260628_120337_cnn_v1` | CNN baseline | 0.5705 | 0.5246 | 0.5601 | 0.8918 | n.d. |
 | `20260706_172701_cnn_v2` | CNN v2 | 0.5414 | 0.5027 | 0.5291 | 0.8745 | n.d. |
