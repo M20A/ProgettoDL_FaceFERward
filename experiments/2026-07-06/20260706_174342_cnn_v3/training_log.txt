@@ -1,0 +1,3 @@
+Modello: cnn_v3
+Data: 20260706_174342
+Migliore val_loss: 1.9354 all'epoca 9

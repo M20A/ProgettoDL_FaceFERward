@@ -1,0 +1,29 @@
+=== VALUTAZIONE FINALE SUL TEST SET ===
+
+Test Loss: 1.9358
+Test Accuracy: 0.1335
+Test AUC: 0.5590
+
+=== CLASSIFICATION REPORT ===
+              precision    recall  f1-score   support
+
+       angry       0.13      1.00      0.24       958
+     disgust       0.00      0.00      0.00       111
+        fear       0.00      0.00      0.00      1024
+       happy       0.00      0.00      0.00      1774
+     neutral       0.00      0.00      0.00      1233
+         sad       0.00      0.00      0.00      1247
+    surprise       0.00      0.00      0.00       831
+
+    accuracy                           0.13      7178
+   macro avg       0.02      0.14      0.03      7178
+weighted avg       0.02      0.13      0.03      7178
+
+=== CONFUSION MATRIX ===
+[[ 958    0    0    0    0    0    0]
+ [ 111    0    0    0    0    0    0]
+ [1024    0    0    0    0    0    0]
+ [1774    0    0    0    0    0    0]
+ [1233    0    0    0    0    0    0]
+ [1247    0    0    0    0    0    0]
+ [ 831    0    0    0    0    0    0]]

@@ -1,509 +1,246 @@
-# ProgettoDL FaceFERward
+# FaceFERward
 
-Progetto di Deep Learning per il riconoscimento delle emozioni facciali sul dataset FER-2013.
+FaceFERward e' un progetto sperimentale di Deep Learning per il riconoscimento automatico delle emozioni facciali su immagini del dataset FER-2013. Il progetto confronta diverse architetture di classificazione, con attenzione sia alle prestazioni sia alla leggibilita' degli errori prodotti dai modelli.
 
-Il progetto usa immagini grayscale 48x48 divise in 7 classi:
+Il dataset contiene immagini di volti in scala di grigi, organizzate in sette classi:
 
-- angry
-- disgust
-- fear
-- happy
-- neutral
-- sad
-- surprise
+- `angry`
+- `disgust`
+- `fear`
+- `happy`
+- `neutral`
+- `sad`
+- `surprise`
 
-## Stato attuale
+Dataset utilizzato: FER-2013, disponibile su Kaggle all'indirizzo <https://www.kaggle.com/datasets/msambare/fer2013>.
 
-Questo README mantiene due livelli di informazione:
+## Obiettivi del progetto
 
-- lo stato attuale del progetto, cioe' come va eseguito e dove salva ora i file;
-- lo storico delle modifiche e dei risultati, cosi' resta chiaro come il progetto e' cambiato nel tempo.
+Il progetto parte da tre domande di ricerca:
 
-Quando viene fatta una nuova modifica importante, aggiungere una nuova voce nello storico invece di cancellare le informazioni precedenti.
+1. **Quale architettura offre il miglior compromesso tra accuratezza e costo computazionale?**  
+   Sono stati confrontati modelli CNN custom, una CNN piu' profonda, MobileNetV2 e ResNet50 in transfer learning. Il confronto usa accuracy, AUC, F1-score, tempo di inferenza e complessita' del modello.
 
-Riferimento Git usato per il confronto:
+2. **Il modello usa aree del volto coerenti con il riconoscimento dell'espressione?**  
+   Sono state prodotte visualizzazioni Grad-CAM per osservare se l'attenzione del modello ricade su regioni significative del volto.
 
-```text
-1070df460f5ff158d3f9ff5b681dec9aff460b3a - Aggiunta commenti vari
-```
+3. **Quali emozioni risultano piu' difficili da classificare?**  
+   Le confusion matrix e i classification report sono stati usati per individuare le classi piu' soggette a errore, con particolare attenzione a `fear`, `sad` e alle classi meno rappresentate.
 
-Rispetto a questo commit, il lavoro attuale modifica soprattutto:
+## Struttura del repository
 
-- `notebooks/Preprocessing.ipynb`
-- `notebooks/Training.ipynb`
-- aggiunge `requirements.txt`
-- aggiunge `.gitignore`
-
-Il dataset originale resta in:
+La struttura segue le linee guida del progetto sperimentale, separando dati, notebook, esperimenti e risultati.
 
 ```text
-data/original/train
-data/original/test
+ProgettoDL_FaceFERward/
+|-- assets/
+|   |-- images/
+|   |-- slides/
+|   |-- video/
+|-- data/
+|   |-- original/
+|   |   |-- train/
+|   |   |-- test/
+|   |-- processed/
+|       |-- train/
+|       |-- validation/
+|-- experiments/
+|   |-- YYYY-MM-DD/
+|       |-- <timestamp>_<model_name>/
+|-- notebooks/
+|-- results/
+|   |-- YYYY-MM-DD/
+|   |   |-- <timestamp>_<model_name>/
+|   |       |-- figures/
+|   |       |-- tables/
+|   |       |-- predictions/
+|   |-- models_comparison.csv
+|   |-- preprocessing_split_counts.csv
+|-- README.md
+|-- requirements.txt
 ```
 
-La cartella `data/processed/` e l'ambiente virtuale `.venv/` sono esclusi dal push tramite `.gitignore`.
-Le run di training vengono salvate in `experiments/`, mentre figure, tabelle e predizioni riutilizzabili vengono esportate in `results/`.
+La cartella `experiments/` contiene i file necessari a riprodurre o ispezionare le run: configurazioni, modelli salvati, history e log. La cartella `results/` contiene invece solo output pensati per analisi e documentazione: figure, tabelle e predizioni. I file globali che fanno riferimento a tutti i modelli e train svolti `models_comparison.csv` e `preprocessing_split_counts.csv` restano direttamente in `results/`.
 
-## Storico modifiche
+## Dataset e preprocessing
 
-### Commit precedente di riferimento
+Il dataset originale viene mantenuto in `data/original/`, senza modificare direttamente le immagini sorgenti. Il notebook di preprocessing genera uno split pronto per il training in `data/processed/`.
 
-Il commit:
+Conteggi usati negli esperimenti:
+
+| Classe | Train | Validation | Test |
+|---|---:|---:|---:|
+| angry | 4507 | 799 | 958 |
+| disgust | 477 | 87 | 111 |
+| fear | 4588 | 819 | 1024 |
+| happy | 8062 | 1443 | 1774 |
+| neutral | 5560 | 993 | 1233 |
+| sad | 5407 | 966 | 1247 |
+| surprise | 3554 | 634 | 831 |
+
+Il preprocessing applica normalizzazione e preparazione delle immagini per il training, mantenendo il test set separato. Questo riduce il rischio di data leakage: il test set viene usato solo nella valutazione finale.
+
+## Notebook principali
+
+I notebook sono organizzati per fase sperimentale:
+
+| Notebook | Ruolo |
+|---|---|
+| `notebooks/Preprocessing.ipynb` | prepara `data/processed/train` e `data/processed/validation`, e salva i conteggi in `results/preprocessing_split_counts.csv` |
+| `notebooks/Training.ipynb` | addestra CNN custom leggere, incluse varianti `cnn_v2`, `cnn_v3`, `cnn_v4` |
+| `notebooks/Training_CNN_Complex.ipynb` | addestra una CNN custom piu' profonda |
+| `notebooks/Training_MobileNetV2.ipynb` | esegue transfer learning con MobileNetV2 |
+| `notebooks/Training_ResNet.ipynb` | esegue transfer learning con ResNet50 |
+| `notebooks/Evaluation.ipynb` | valuta un modello salvato e genera report, confusion matrix, predizioni e Grad-CAM |
+| `notebooks/Training_unificato.ipynb` | raccoglie parti sperimentali in un flusso unico, utile come riferimento storico/operativo |
+
+Ordine consigliato di esecuzione:
+
+1. `notebooks/Preprocessing.ipynb`
+2. un notebook di training tra quelli disponibili
+3. `notebooks/Evaluation.ipynb`, impostando `EXPERIMENT_NAME` con il nome della run da valutare
+
+Esempio:
+
+```python
+EXPERIMENT_NAME = "20260629_185100_cnn_complex_v1"
+```
+
+## Modelli testati
+
+Sono state valutate piu' famiglie di modelli:
+
+- **CNN custom baseline**, usata come primo riferimento sperimentale.
+- **CNN custom v2/v3/v4**, varianti leggere con differenze architetturali e di configurazione.
+- **CNN complex**, rete custom piu' profonda, con piu' blocchi convoluzionali e maggiore capacita' rappresentativa.
+- **MobileNetV2 transfer**, modello preaddestrato su ImageNet e adattato al task FER-2013.
+- **ResNet50 transfer**, ulteriore confronto con architettura preaddestrata piu' profonda.
+
+Le run principali sono sintetizzate in `results/models_comparison.csv`.
+
+## Risultati principali
+
+La migliore run ottenuta e' `20260629_185100_cnn_complex_v1`, con accuracy sul test set pari a **0.6704** e macro F1 pari a **0.6567**.
+
+| Run | Modello | Accuracy | Macro F1 | Weighted F1 | AUC | Inference |
+|---|---|---:|---:|---:|---:|---:|
+| `20260629_185100_cnn_complex_v1` | CNN complex | 0.6704 | 0.6567 | 0.6681 | 0.9312 | 2.28 ms/img |
+| `20260630_135725_ResNet50_transfer` | ResNet50 transfer | 0.6193 | 0.5918 | 0.6138 | 0.9094 | 25.23 ms/img |
+| `20260705_190109_mobilenetv2_transfer` | MobileNetV2 transfer | 0.5823 | 0.5733 | 0.5807 | 0.8907 | 1.46 ms/img |
+| `20260628_120337_cnn_v1` | CNN baseline | 0.5705 | 0.5246 | 0.5601 | 0.8918 | n.d. |
+| `20260706_172701_cnn_v2` | CNN v2 | 0.5414 | 0.5027 | 0.5291 | 0.8745 | n.d. |
+| `20260706_233427_cnn_v4` | CNN v4 | 0.5315 | 0.4834 | 0.5206 | 0.8716 | n.d. |
+
+La CNN complex e' risultata il modello piu' efficace tra quelli testati. ResNet50 ha ottenuto buone prestazioni, ma con un tempo di inferenza piu' alto. MobileNetV2 e' piu' leggera e veloce, ma in questa configurazione non supera la CNN complex. Le CNN leggere restano utili come baseline e per analizzare il compromesso tra semplicita' e prestazioni.
+
+## Figure significative
+
+Le figure seguenti sono una selezione ridotta degli output prodotti. Tutte le altre curve, matrici, tabelle e predizioni sono disponibili nella cartella `results/`.
+
+### CNN complex - curve di training
+
+![Curve di training della CNN complex](results/2026-06-29/20260629_185100_cnn_complex_v1/figures/20260629_185100_cnn_complex_v1_training_curves.png)
+
+### CNN complex - confusion matrix
+
+![Confusion matrix della CNN complex](results/2026-06-29/20260629_185100_cnn_complex_v1/figures/20260629_185100_cnn_complex_v1_confusion_matrix.png)
+
+### ResNet50 transfer - confusion matrix
+
+![Confusion matrix di ResNet50 transfer](results/2026-06-30/20260630_135725_ResNet50_transfer/figures/20260630_135725_ResNet50_transfer_confusion_matrix.png)
+
+### MobileNetV2 transfer - confusion matrix
+
+![Confusion matrix di MobileNetV2 transfer](results/2026-07-05/20260705_190109_mobilenetv2_transfer/figures/20260705_190109_mobilenetv2_transfer_confusion_matrix.png)
+
+## Analisi degli errori
+
+La CNN complex migliora in modo evidente rispetto alla baseline, ma non risolve completamente le ambiguita' del dataset. Le classi piu' riconoscibili sono `happy` e `surprise`, mentre `fear` resta una delle classi piu' difficili. Questo e' coerente con la natura di FER-2013: immagini piccole, grayscale, rumorose e con espressioni talvolta visivamente simili.
+
+Nel modello migliore:
+
+- `happy` raggiunge F1-score circa 0.88;
+- `surprise` raggiunge F1-score circa 0.78;
+- `fear` rimane piu' debole, con F1-score circa 0.47;
+- `sad` e `neutral` presentano confusione reciproca;
+- `disgust` ha pochi esempi nel test set, quindi va interpretata con cautela anche quando il valore F1 e' buono.
+
+Questa analisi e' importante anche in ottica responsible deep learning: un classificatore di emozioni facciali non deve essere interpretato come sistema infallibile, soprattutto in classi sottili o sbilanciate. Le predizioni vanno considerate come supporto sperimentale e non come decisione affidabile in contesti sensibili.
+
+## Grad-CAM e interpretabilita'
+
+Per valutare in modo qualitativo il comportamento dei modelli, `Evaluation.ipynb` include una sezione Grad-CAM. L'obiettivo e' verificare se il modello concentra l'attenzione su regioni del volto plausibili per il riconoscimento dell'espressione.
+
+Le visualizzazioni Grad-CAM vengono salvate in:
 
 ```text
-1070df460f5ff158d3f9ff5b681dec9aff460b3a - Aggiunta commenti vari
+gradcam_results/
 ```
 
-viene mantenuto come riferimento storico per confrontare la prima versione del progetto con quella attuale.
+Questa analisi non sostituisce le metriche quantitative, ma aiuta a discutere limiti, casi di errore e affidabilita' del modello.
 
-In quella versione il flusso era piu' legato a Colab/Google Drive e il training non usava ancora direttamente una cartella `data/processed` generata dal preprocessing.
+## Come riprodurre il progetto
 
-### Commit del 27/06/2026
-
-In data 27/06/2026 e' stato aggiornato il flusso dei notebook per rendere effettivo l'utilizzo del preprocessing nel training.
-
-Modifiche principali:
-
-- `notebooks/Preprocessing.ipynb` crea uno split preprocessato fisico in:
-
-```text
-data/processed/train
-data/processed/validation
-```
-
-- `data/processed/train` contiene le immagini originali di training piu' una quota di immagini augmentate.
-- `data/processed/validation` contiene immagini di validazione non augmentate.
-- `notebooks/Training.ipynb` non usa piu' `data/original/train` direttamente per il training.
-- `notebooks/Training.ipynb` usa ora:
-
-```text
-data/processed/train
-data/processed/validation
-data/original/test
-```
-
-- `data/original/test` resta separato e viene usato solo per la valutazione finale.
-- Le metriche precedenti vengono mantenute nello storico risultati, cosi' e' possibile confrontare l'evoluzione del progetto.
-
-### Aggiornamento del 28/06/2026 - struttura esperimenti
-
-Il progetto usa ora la struttura suggerita dalle linee guida:
-
-```text
-assets/
-data/
-experiments/
-notebooks/
-results/
-```
-
-Ogni nuovo training crea una sottocartella dedicata in `experiments/`, ad esempio:
-
-```text
-experiments/20260628_153012_cnn_v1/
-```
-
-La cartella dell'esperimento contiene almeno:
-
-```text
-config.json
-model.keras
-training_history.csv
-training_log.txt
-test_results.txt
-```
-
-Gli output pensati per documentazione, confronto e presentazione vengono salvati in:
-
-```text
-results/figures/
-results/tables/
-results/predictions/
-```
-
-### Aggiornamento del 27/06/2026 - monitoraggio real-time
-
-I notebook sono stati aggiornati per mostrare l'avanzamento delle fasi principali durante l'esecuzione, utile soprattutto su Google Colab.
-
-In particolare:
-
-- ogni fase stampa messaggi con orario di inizio/fine e durata;
-- il preprocessing mostra barre di avanzamento durante split, copia immagini e augmentation;
-- il training stampa numero di immagini, batch per epoca, distribuzione classi e `class_weight`;
-- durante il training viene mostrata la durata di ogni epoca e le metriche principali;
-- evaluation carica il modello salvato e mostra progressi durante valutazione, predizioni, report e confusion matrix.
-
-Per le barre di avanzamento viene usata la libreria `tqdm`, inclusa in `requirements.txt`.
-
-### Aggiornamento del 28/06/2026 12:44 - notebook MobileNetV2
-
-E' stato aggiunto il notebook:
-
-```text
-notebooks/Training_MobileNetV2.ipynb
-```
-
-Questo notebook avvia la seconda linea sperimentale del progetto: transfer learning con MobileNetV2 preaddestrata su ImageNet.
-
-La struttura resta coerente con quella gia' usata dalla CNN:
-
-- il preprocessing rimane comune e viene eseguito una sola volta con `notebooks/Preprocessing.ipynb`;
-- il notebook MobileNetV2 legge `data/processed/train`, `data/processed/validation` e `data/original/test`;
-- ogni run MobileNetV2 viene salvata in una nuova cartella `experiments/<timestamp>_mobilenetv2_transfer/`;
-- figure, tabelle e predizioni vengono esportate in `results/figures/`, `results/tables/` e `results/predictions/`;
-- la tabella `results/tables/models_comparison.csv` viene aggiornata per facilitare il confronto tra CNN custom e modello preaddestrato.
-
-Il notebook e' stato creato per documentare il confronto sperimentale tra CNN custom e transfer learning.
-
-### Aggiornamento del 29/06/2026 - notebook CNN complessa
-
-E' stato aggiunto il notebook:
-
-```text
-notebooks/Training_CNN_Complex.ipynb
-```
-
-Questo notebook avvia una terza linea sperimentale: una CNN custom piu' profonda e piu' pesante della CNN baseline.
-
-La nuova architettura usa:
-
-- 5 stage convoluzionali in stile VGG;
-- 2 convoluzioni per stage;
-- filtri crescenti `32 -> 64 -> 128 -> 256 -> 512`;
-- `BatchNormalization`;
-- `SpatialDropout2D` nei blocchi convoluzionali;
-- `GlobalAveragePooling2D`;
-- classificatore finale con Dense `512 -> 256 -> 7`;
-- `AdamW`, weight decay, label smoothing, class weight e augmentation online.
-
-Il modello ha circa 5.1 milioni di parametri, quindi e' molto piu' complesso della CNN baseline da circa 305 mila parametri documentata nel README.
-
-Il training puo' durare diverse ore su CPU. Ogni run viene salvata in:
-
-```text
-experiments/<timestamp>_cnn_complex_v1/
-```
-
-Al termine vengono esportati anche report, confusion matrix, predizioni e aggiornamento di:
-
-```text
-results/tables/models_comparison.csv
-```
-
-## Differenze principali dal commit precedente
-
-### Preprocessing
-
-Prima erano presenti riferimenti a Colab e Google Drive, per esempio:
-
-- `/content/FER2013`
-- `/content/drive/MyDrive/FER2013_split`
-- `google.colab`
-- split fisico copiando immagini in nuove cartelle
-
-Ora il preprocessing e' piu' adatto a girare da VS Code in locale:
-
-- usa percorsi relativi al progetto
-- evita dipendenze da Colab
-- non richiede uno split fisico su Drive
-- mantiene separato il dataset originale
-- crea `data/processed/train` e `data/processed/validation` a partire dal training set originale
-- aggiunge immagini augmentate solo in `data/processed/train`
-- lascia intatto `data/original/test`, che resta riservato alla valutazione finale
-
-### Training
-
-Il training e' stato ristrutturato per usare:
-
-```text
-data/processed/train
-data/processed/validation
-data/original/test
-```
-
-La validation non viene piu' creata al volo con `validation_split`: viene letta direttamente da `data/processed/validation`, generata nel notebook di preprocessing.
-
-Il test set rimane separato e viene usato solo alla fine per la valutazione.
-
-## Modello attuale
-
-Il modello precedente era una CNN piu' semplice, con:
-
-- pochi blocchi convoluzionali
-- `Flatten()`
-- training a 15 epoche
-- nessun bilanciamento esplicito delle classi
-
-Il modello attuale usa:
-
-- piu' blocchi convoluzionali
-- `BatchNormalization`
-- `Dropout`
-- `GlobalAveragePooling2D`
-- `class_weight` per gestire classi sbilanciate
-- learning rate piu' basso: `3e-4`
-- massimo 50 epoche con `EarlyStopping`
-- `ReduceLROnPlateau`
-- salvataggio del miglior modello in una cartella dedicata sotto `experiments/`
-- esportazione di curve, confusion matrix, report e predizioni in `results/`
-
-Parametri del modello attuale:
-
-```text
-Total params: 305,639
-Trainable params: 304,743
-Non-trainable params: 896
-```
-
-Il numero di parametri e' piu' basso soprattutto perche' `GlobalAveragePooling2D` sostituisce `Flatten()`. Questo riduce molto i parametri nella parte finale del classificatore e puo' aiutare a limitare l'overfitting.
-
-## Risultati ottenuti
-
-### Risultato corrente di riferimento
-
-Run attualmente usata come riferimento nel repository:
-
-Nota: questi risultati fanno riferimento alla run `experiments/20260628_120337_cnn_v1/`.
-La documentazione di questa run e' stata aggiornata il 28/06/2026 alle 12:31 (+02:00).
-
-```text
-Train images:      32,155
-Validation images:  5,741
-Test images:        7,178
-```
-
-Tempi rilevati durante l'esecuzione completa locale:
-
-```text
-Preprocessing completo:              54.0s
-Verifica split preprocessati:         1.2s
-Training modello:                  1468.5s (~24.5 minuti)
-Valutazione finale nel training:       7.7s
-Evaluation separata modello salvato:   3.0s
-Predizioni e report in evaluation:     3.6s
-```
-
-Training completato in 50 epoche su 50. La migliore `val_loss` e' stata:
-
-```text
-Best val_loss: 1.1268 all'epoca 44
-Best val_accuracy: 0.5748 all'epoca 46
-Best val_auc: 0.8929 all'epoca 46
-```
-
-Risultato finale sul test set:
-
-```text
-Test loss:     1.1314
-Test accuracy: 0.5705
-Test AUC:      0.8918
-Macro F1:      0.52
-Weighted F1:   0.56
-```
-
-Rispetto al risultato iniziale riportato di circa:
-
-```text
-Test accuracy: 0.44
-```
-
-il nuovo risultato e' un miglioramento netto:
-
-```text
-0.44 -> 0.5705
-```
-
-cioe' circa +13 punti percentuali di accuracy.
-
-La nuova struttura di salvataggio ha funzionato correttamente. La run ha prodotto:
-
-```text
-experiments/20260628_120337_cnn_v1/config.json
-experiments/20260628_120337_cnn_v1/model.keras
-experiments/20260628_120337_cnn_v1/training_history.csv
-experiments/20260628_120337_cnn_v1/training_log.txt
-experiments/20260628_120337_cnn_v1/test_results.txt
-results/tables/preprocessing_split_counts.csv
-results/tables/20260628_120337_cnn_v1_classification_report.csv
-results/tables/20260628_120337_cnn_v1_confusion_matrix.csv
-results/predictions/20260628_120337_cnn_v1_test_predictions.csv
-results/figures/20260628_120337_cnn_v1_training_curves.png
-results/figures/20260628_120337_cnn_v1_confusion_matrix.png
-```
-
-### Storico risultati
-
-Le metriche seguenti vengono mantenute come storico. Non vanno eliminate quando si aggiunge una nuova run: servono a capire l'evoluzione del progetto.
-
-#### Baseline iniziale
-
-La prima versione del progetto riportava una test accuracy di circa:
-
-```text
-Test accuracy: 0.44
-```
-
-Questa baseline e' utile come punto di partenza per mostrare il miglioramento ottenuto con le versioni successive.
-
-#### Run `experiments/20260627_180349_cnn_v1/`
-
-Questa run e' stata mantenuta nello storico dopo il passaggio alla struttura `experiments/`.
-
-```text
-Train images:      32,155
-Validation images:  5,741
-Test images:        7,178
-Training: 50 epoche su 50
-
-Best val_loss: 1.1576 all'epoca 48
-Test loss:     1.1599
-Test accuracy: 0.5592
-Test AUC:      0.8854
-Macro F1:      0.51
-Weighted F1:   0.55
-```
-
-#### Run precedente documentata nel README
-
-Prima del riordino della struttura in `experiments/`, il README riportava una run con:
-
-```text
-Train images:      22,968
-Validation images:  5,741
-Test images:        7,178
-Training: 42 epoche su 50, fermato dai callback
-
-Test loss:     1.0841
-Test accuracy: 0.5846
-Test AUC:      0.9009
-```
-
-Questa run resta nello storico per confronto. Se si vuole usarla nella presentazione finale, conviene collegarla a una cartella esperimento completa con modello, log, history e risultati.
-
-#### Run `experiments/20260628_124858_mobilenetv2_transfer/`
-
-Il 28/06/2026 alle 14:04 (+02:00) e' stato documentato il primo esperimento di transfer learning con MobileNetV2 preaddestrata su ImageNet.
-
-Configurazione principale:
-
-```text
-Base model:          MobileNetV2
-Pretrained weights:  ImageNet
-Input size:          96x96x3
-Feature extraction:  15 epoche
-Fine tuning:         20 epoche
-Fine-tuned layers:   ultimi 30 layer, con BatchNormalization congelata
-```
-
-Risultati sul test set:
-
-```text
-Test accuracy: 0.5153
-Test AUC:      0.8580
-Macro F1:      0.4615
-Weighted F1:   0.5026
-Training:      49.1 minuti
-Inference:     1.53 ms/image
-```
-
-Confronto con la run CNN di riferimento `experiments/20260628_120337_cnn_v1/`:
-
-```text
-CNN custom accuracy:      0.5705
-MobileNetV2 accuracy:    0.5153
-
-CNN custom macro F1:     0.5246
-MobileNetV2 macro F1:    0.4615
-
-CNN custom weighted F1:  0.5601
-MobileNetV2 weighted F1: 0.5026
-```
-
-La run MobileNetV2 e' quindi inferiore alla CNN custom in questa configurazione, anche se e' piu' veloce in inferenza. Il risultato resta importante per il progetto perche' mostra che il transfer learning da ImageNet non porta automaticamente un miglioramento su FER-2013: il dominio di partenza e' RGB/natural images, mentre FER-2013 contiene facce grayscale 48x48.
-
-Dal classification report emergono buone prestazioni su `happy` e `surprise`, un miglioramento relativo su `sad` rispetto alla CNN, ma difficolta' marcate su `fear`, che ha recall basso. Questo sara' utile per l'analisi per classe e per la discussione degli errori.
-
-I file salvati sono:
-
-```text
-experiments/20260628_124858_mobilenetv2_transfer/
-results/figures/20260628_124858_mobilenetv2_transfer_training_curves.png
-results/figures/20260628_124858_mobilenetv2_transfer_confusion_matrix.png
-results/tables/20260628_124858_mobilenetv2_transfer_classification_report.csv
-results/tables/20260628_124858_mobilenetv2_transfer_confusion_matrix.csv
-results/predictions/20260628_124858_mobilenetv2_transfer_test_predictions.csv
-results/tables/models_comparison.csv
-```
-
-## Analisi dei risultati
-
-Il miglioramento sembra reale dal punto di vista pratico: il modello generalizza meglio sul test set rispetto alla CNN iniziale.
-
-Le classi migliori sono:
-
-- `happy`, con F1-score circa 0.81
-- `surprise`, con F1-score circa 0.71
-- `neutral`, con F1-score circa 0.56
-
-Le classi piu' problematiche sono:
-
-- `fear`, con recall basso
-- `sad`, spesso confusa con `neutral`
-- `disgust`, molto sbilanciata e con pochi esempi, anche se in questa run ha recall alto
-
-Questo e' coerente con FER-2013: il dataset e' rumoroso, alcune emozioni sono visivamente simili e le classi non sono perfettamente bilanciate.
-
-## Data leakage
-
-La struttura attuale riduce il rischio di data leakage:
-
-- training e validation derivano da `data/processed/train` e `data/processed/validation`, generati solo a partire da `data/original/train`
-- le immagini augmentate vengono aggiunte solo al training preprocessato
-- il test set usa solo `data/original/test`
-- il test viene usato solo alla fine con `model.evaluate`
-
-Per una verifica piu' forte si puo' aggiungere un controllo hash per cercare duplicati tra train e test.
-
-## Come eseguire il progetto
-
-Creare un ambiente Python da VS Code e installare le dipendenze:
+Creare un ambiente Python e installare le dipendenze:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Poi eseguire i notebook in questo ordine:
+Eseguire poi i notebook nell'ordine:
 
-1. `notebooks/Preprocessing.ipynb`
-2. `notebooks/Training.ipynb`, per la CNN custom
-3. `notebooks/Training_CNN_Complex.ipynb`, per la CNN custom complessa
-4. `notebooks/Training_MobileNetV2.ipynb`, per il transfer learning con ImageNet
-5. `notebooks/Evaluation.ipynb`, se si vuole separare la fase di valutazione
+```text
+notebooks/Preprocessing.ipynb
+notebooks/Training_CNN_Complex.ipynb
+notebooks/Evaluation.ipynb
+```
 
-Il preprocessing va eseguito prima dei training perche' crea `data/processed/train` e `data/processed/validation`, cioe' le cartelle che i notebook di training usano come sorgenti.
+Per provare altre architetture, sostituire il notebook di training con:
 
-`Training.ipynb`, `Training_CNN_Complex.ipynb` e `Training_MobileNetV2.ipynb` sono esperimenti alternativi: non serve creare preprocessing separati. Dopo averli eseguiti, i risultati salvati in `experiments/` e `results/` permettono di confrontare CNN custom semplice, CNN custom complessa e MobileNetV2.
+```text
+notebooks/Training.ipynb
+notebooks/Training_MobileNetV2.ipynb
+notebooks/Training_ResNet.ipynb
+```
 
-Su Windows TensorFlow non usa la GPU nativa con le versioni moderne. Per training piu' veloce conviene usare Google Colab con GPU oppure WSL2.
+Ogni nuova run viene salvata automaticamente secondo la struttura:
 
-## Possibili miglioramenti
+```text
+experiments/YYYY-MM-DD/<timestamp>_<model_name>/
+results/YYYY-MM-DD/<timestamp>_<model_name>/
+```
 
-Prossimi step consigliati:
+## File prodotti da una run
 
-- usare `models_comparison.csv` come tabella base per relazione e presentazione
-- provare una seconda configurazione MobileNetV2 o EfficientNet solo se serve un ulteriore confronto
-- usare callback e metriche per salvare e confrontare piu' esperimenti
-- aggiungere controllo hash per escludere duplicati tra train e test
-- arricchire `results/` con grafici comparativi tra modelli e analisi degli errori
-- provare tuning di augmentation, learning rate e batch size
-- usare Colab/GPU per testare piu' configurazioni in meno tempo
+Una run completa salva tipicamente:
 
-## Conclusione
+```text
+experiments/YYYY-MM-DD/<run>/
+|-- config.json
+|-- model.keras
+|-- training_history.csv
+|-- training_log.txt
+|-- test_results.txt
+```
 
-La modifica e' un miglioramento sia strutturale sia prestazionale.
+e:
 
-Strutturale, perche' il progetto e' piu' portabile, meno dipendente da Colab e piu' ordinato nei percorsi.
+```text
+results/YYYY-MM-DD/<run>/
+|-- figures/
+|   |-- <run>_training_curves.png
+|   |-- <run>_confusion_matrix.png
+|-- tables/
+|   |-- <run>_classification_report.csv
+|   |-- <run>_confusion_matrix.csv
+|-- predictions/
+    |-- <run>_test_predictions.csv
+```
 
-Prestazionale, perche' l'accuracy sul test set passa da circa 0.44 a 0.5705 nella run attuale.
+Le predizioni sono utili per analisi successive, ma non sono obbligatorie per ogni run storica.
 
-Il modello non e' ancora allo stato dell'arte, ma ora ha una base piu' solida su cui continuare.
+## Conclusioni
+
+Il progetto mostra che una CNN custom piu' profonda puo' superare sia la baseline sia i modelli preaddestrati testati, almeno nella configurazione sperimentale adottata. Il miglior risultato e' stato ottenuto dalla CNN complex, con accuracy pari a 0.6704 e AUC pari a 0.9312 sul test set.
+
+Il confronto conferma inoltre che il transfer learning da ImageNet non garantisce automaticamente prestazioni migliori su FER-2013: il dominio di partenza e' diverso, mentre il dataset finale e' composto da volti grayscale a bassa risoluzione. Le analisi per classe e Grad-CAM evidenziano infine che il riconoscimento delle emozioni resta un task delicato, con errori piu' frequenti sulle classi visivamente ambigue.

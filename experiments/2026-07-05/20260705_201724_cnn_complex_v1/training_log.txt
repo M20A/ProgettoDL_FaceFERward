@@ -1,0 +1,5 @@
+Modello: cnn_complex_v1
+Data: 20260705_201724
+Epoche completate: 36/150
+Migliore val_loss: 1.0447 all'epoca 28
+Training time seconds: 927.1
